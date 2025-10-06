@@ -49,4 +49,24 @@ public class NoteRestController {
   public void deleteById(@PathVariable String id) {
     noteService.deleteById(id);
   }
+
+  @GetMapping("/new")
+  public String getNewPage() {
+    return "This is a new page!";
+  }
+
+  @GetMapping("/helloUser")
+  public String helloUser() {
+    return "Hello, User!";
+  }
+
+  @GetMapping("/helloAdmin")
+  public String helloAdmin() {
+    return "Hello, Admin!";
+  }
+
+  @GetMapping("/helloUnknown")
+  public String helloUnknown() {
+    return "Hello, Unknown!";
+  }
 }

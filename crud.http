@@ -1,0 +1,53 @@
+### GET ALL NOTES (Отримати всі нотатки)
+@host = http://localhost:8080
+@username = user
+@password = 9cda367f-231d-48c0-a066-301bc525ba90
+
+
+GET {{host}}/api/v1/notes
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{host}}/api/v1/notes/2
+Authorization: Basic {{username}} {{password}}
+
+###
+DELETE {{host}}/api/v1/notes/3
+Authorization: Basic {{username}} {{password}}
+
+###
+POST {{host}}/api/v1/notes
+Content-Type: application/json
+Authorization: Basic {{username}} {{password}}
+
+{
+  "title": "Нова нотатка 4",
+  "content": "Це зміст четвертої нотатки"
+}
+
+###
+PUT {{host}}/api/v1/notes
+Content-Type: application/json
+Authorization: Basic {{username}} {{password}}
+
+{
+  "id": "2",
+  "title": "Сходити в магазин (ОНОВЛЕНО)",
+  "content": "Купити хліб, молоко, яйця і масло."
+}
+
+###
+GET {{host}}/api/v1/notes/new
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{host}}/api/v1/notes/helloUser
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{host}}/api/v1/notes/helloAdmin
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{host}}/api/v1/notes/helloUnknown
+Authorization: Basic {{username}} {{password}}
