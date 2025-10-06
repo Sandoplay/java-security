@@ -7,15 +7,15 @@
 GET {{host}}/api/v1/notes
 Authorization: Basic {{username}} {{password}}
 
-###
+### GET ONE NOTE (Отримати одну нотатку за ID)
 GET {{host}}/api/v1/notes/2
 Authorization: Basic {{username}} {{password}}
 
-###
+### DELETE ONE NOTE (Видалити одну нотатку за ID)
 DELETE {{host}}/api/v1/notes/3
 Authorization: Basic {{username}} {{password}}
 
-###
+### CREATE ONE NOTE (Створити нову нотатку)
 POST {{host}}/api/v1/notes
 Content-Type: application/json
 Authorization: Basic {{username}} {{password}}
@@ -25,7 +25,7 @@ Authorization: Basic {{username}} {{password}}
   "content": "Це зміст четвертої нотатки"
 }
 
-###
+### UPDATE ONE NOTE (Оновити існуючу нотатку)
 PUT {{host}}/api/v1/notes
 Content-Type: application/json
 Authorization: Basic {{username}} {{password}}
@@ -36,18 +36,18 @@ Authorization: Basic {{username}} {{password}}
   "content": "Купити хліб, молоко, яйця і масло."
 }
 
-###
+### GET New Page
 GET {{host}}/api/v1/notes/new
 Authorization: Basic {{username}} {{password}}
 
-###
+### GET Hello User
 GET {{host}}/api/v1/notes/helloUser
 Authorization: Basic {{username}} {{password}}
 
-###
+### GET Hello Admin
 GET {{host}}/api/v1/notes/helloAdmin
 Authorization: Basic {{username}} {{password}}
 
-###
+### GET Hello Unknown
 GET {{host}}/api/v1/notes/helloUnknown
 Authorization: Basic {{username}} {{password}}
