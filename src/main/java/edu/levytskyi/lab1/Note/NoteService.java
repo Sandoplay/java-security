@@ -73,19 +73,22 @@ public class NoteService {
 
   // --- РУЧНИЙ АУДИТ: UPDATE ---
   public Note update(Note note) {
-    Note existing = repository.findById(note.getId()).orElse(null);
-    if (existing != null) {
-      // Оновлюємо контент
-      existing.setTitle(note.getTitle());
-      existing.setContent(note.getContent());
+    // 1. Шукаємо нотатку в базі за ID
+    Note existingNote = repository.findById(note.getId()).orElse(null);
 
-      // Руками ставимо дату і автора зміни
-      existing.setLastModifiedDate(LocalDateTime.now());
-      existing.setLastModifiedBy(getCurrentUsername());
+    if (existingNote != null) {
+      // 2. Оновлюємо тільки корисні дані
+      existingNote.setTitle(note.getTitle());
+      existingNote.setContent(note.getContent());
 
-      return repository.save(existing);
+      // 3. РУЧНИЙ АУДИТ: Фіксуємо, ХТО і КОЛИ змінив
+      existingNote.setLastModifiedDate(LocalDateTime.now());
+      existingNote.setLastModifiedBy(getCurrentUsername()); // Метод, який ми писали раніше
+
+      // 4. Зберігаємо оновлений об'єкт (createdBy залишиться старим!)
+      return repository.save(existingNote);
     }
-    return null;
+    return null; // Або можна кинути помилку, якщо ID не знайдено
   }
 
   // Допоміжний метод для отримання логіна

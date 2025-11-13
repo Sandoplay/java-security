@@ -1,4 +1,7 @@
 @host = http://localhost:8080/api/v1/notes
+@user = user
+@admin = admin
+@superadmin = superadmin
 
 ### 1. GET Public Notes (Публічний доступ - без авторизації)
 # Очікується: 200 OK
@@ -60,10 +63,81 @@ Authorization: Basic superadmin superadmin
 GET {{host}}/helloUser
 Authorization: Basic user wrongpassword
 
-### 11
-PUT {{host}}/2
+### 11. Перевіряємо стан ДО змін (Має бути createdBy: "system", lastModifiedBy: null або "system")
+GET http://localhost:8080/api/v1/notes/1
 Authorization: Basic admin admin
 
+### 12. UPDATE: Адмін змінює нотатку System-а
+PUT http://localhost:8080/api/v1/notes
+Authorization: Basic admin admin
+Content-Type: application/json
+
 {
-    "content": "changed by amongus"
+  "id": "1",
+  "title": "Перша нотатка (ОНОВЛЕНО АДМІНОМ)",
+  "content": "Тут був System, а тепер тут Admin."
 }
+
+### 13. ПЕРЕВІРКА АУДИТУ: Дивимося фінальний результат
+# Очікуємо
+# "createdBy": "system"  без змін
+# "lastModifiedBy": "admin   Змінилося!
+GET http://localhost:8080/api/v1/notes/1
+Authorization: Basic admin admin
+
+
+### 1/10. GET ALL NOTES (Публічний доступ)
+# Очікується: 200 OK (доступ дозволено всім)
+GET {{host}}
+
+### 2/10. GET Hello Unknown (Публічний доступ)
+# Очікується: 200 OK
+GET {{host}}/helloUnknown
+
+### 3/10. GET Hello User as USER (Доступ дозволено ролі USER)
+# Очікується: 200 OK
+GET {{host}}/helloUser
+Authorization: Basic {{user}} {{user}}
+
+### 4/10. GET Hello Admin as USER (Спроба доступу до адмін-ресурсу юзером)
+# Очікується: 403 Forbidden (Недостатньо прав)
+GET {{host}}/helloAdmin
+Authorization: Basic {{user}} {{user}}
+
+### 5/10. GET Hello Admin as ADMIN (Доступ дозволено ролі ADMIN)
+# Очікується: 200 OK
+GET {{host}}/helloAdmin
+Authorization: Basic {{admin}} {{admin}}
+
+### 6/10. POST Create Note as USER (Створення запису, перевірка аудиту створив: user)
+# Очікується: 200/201 OK
+POST {{host}}
+Authorization: Basic {{user}} {{user}}
+Content-Type: application/json
+
+{
+  "title": "Новий запис від USER",
+  "content": "Цей запис має мати createdBy: user"
+}
+
+### 7/10. DELETE Note as USER (Спроба видалення нотатки юзером)
+# Видалення має бути тільки для ADMIN.
+# Очікується: 403 Forbidden
+DELETE {{host}}/1
+Authorization: Basic {{user}} {{user}}
+
+### 8/10. DELETE Note as ADMIN (Видалення нотатки адміном)
+# Очікується: 200 OK / 204 No Content
+DELETE {{host}}/1
+Authorization: Basic {{admin}} {{admin}}
+
+### 9/10. GET Note by ID as SUPERADMIN (Перевірка аутентифікації без ролі)
+# superadmin має бути автентифікований, але не має спеціальних прав на цей ендпоінт.
+# Очікується: 200 OK (оскільки anyRequest().authenticated() дозволяє доступ, якщо юзер існує)
+GET {{host}}/2
+Authorization: Basic {{superadmin}} {{superadmin}}
+
+### 10/10. GET Hello User with Bad Credentials (Невірна аутентифікація)
+# Очікується: 401 Unauthorized
+GET {{host}}/helloUser
+Authorization: Basic {{user}} wrongpassword
