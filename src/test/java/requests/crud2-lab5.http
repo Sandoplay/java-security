@@ -59,3 +59,11 @@ Authorization: Basic superadmin superadmin
 # Очікується: 401 Unauthorized
 GET {{host}}/helloUser
 Authorization: Basic user wrongpassword
+
+### 11
+PUT {{host}}/2
+Authorization: Basic admin admin
+
+{
+    "content": "changed by amongus"
+}

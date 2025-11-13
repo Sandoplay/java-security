@@ -11,39 +11,26 @@ package edu.levytskyi.lab1.Note;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
-@EqualsAndHashCode(callSuper = true)
+@Document(collection = "notes")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Note extends AuditMetaData { // <--- Додано успадкування
+public class Note {
 
   @Id
   private String id;
   private String title;
   private String content;
 
-
-
-  @CreatedDate
+  // --- Ручний аудит ---
   private LocalDateTime createdDate;
-
-  @CreatedBy
   private String createdBy;
-
-  @LastModifiedDate
   private LocalDateTime lastModifiedDate;
-
-  @LastModifiedBy
   private String lastModifiedBy;
 }

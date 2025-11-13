@@ -10,6 +10,8 @@ package edu.levytskyi.lab1.Note;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,38 +23,26 @@ import java.util.List;
 public class NoteService {
 
   private final NoteRepository repository;
-
-
   private final List<Note> notes = new ArrayList<>();
 
   @PostConstruct
   void init() {
-
     repository.deleteAll();
-
-
+    // Ініціалізуємо тестові дані з "захардкодженими" авторами
     notes.add(Note.builder()
         .id("1")
         .title("Перша нотатка")
-        .content("Це зміст першої нотатки.")
+        .content("Зміст 1")
         .createdDate(LocalDateTime.now())
         .createdBy("system")
         .build());
 
     notes.add(Note.builder()
         .id("2")
-        .title("Сходити в магазин")
-        .content("Купити хліб, молоко, яйця.")
-        .createdDate(LocalDateTime.now().plusHours(1))
+        .title("Адмінська нотатка")
+        .content("Важлива інфа")
+        .createdDate(LocalDateTime.now())
         .createdBy("admin")
-        .build());
-
-    notes.add(Note.builder()
-        .id("3")
-        .title("План на завтра")
-        .content("Зробити лабораторну з безпеки.")
-        .createdDate(LocalDateTime.now().plusHours(5))
-        .createdBy("user")
         .build());
 
     repository.saveAll(notes);
@@ -70,21 +60,40 @@ public class NoteService {
     repository.deleteById(id);
   }
 
+  // --- РУЧНИЙ АУДИТ: CREATE ---
   public Note create(Note note) {
-    // При створенні Spring Security + Auditing автоматично заповнять createdBy/createdDate
+    note.setCreatedDate(LocalDateTime.now());
+    note.setCreatedBy(getCurrentUsername()); // Записуємо поточного юзера
+    // При створенні можна також заповнити lastModified
+    note.setLastModifiedDate(LocalDateTime.now());
+    note.setLastModifiedBy(getCurrentUsername());
+
     return repository.save(note);
   }
 
+  // --- РУЧНИЙ АУДИТ: UPDATE ---
   public Note update(Note note) {
+    Note existing = repository.findById(note.getId()).orElse(null);
+    if (existing != null) {
+      // Оновлюємо контент
+      existing.setTitle(note.getTitle());
+      existing.setContent(note.getContent());
 
-    return repository.findById(note.getId())
-        .map(existingNote -> {
+      // Руками ставимо дату і автора зміни
+      existing.setLastModifiedDate(LocalDateTime.now());
+      existing.setLastModifiedBy(getCurrentUsername());
 
-          existingNote.setTitle(note.getTitle());
-          existingNote.setContent(note.getContent());
+      return repository.save(existing);
+    }
+    return null;
+  }
 
-          return repository.save(existingNote);
-        })
-        .orElse(null);
+  // Допоміжний метод для отримання логіна
+  private String getCurrentUsername() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null && auth.isAuthenticated()) {
+      return auth.getName();
+    }
+    return "anonymous";
   }
 }
