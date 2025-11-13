@@ -18,7 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 
 @Configuration
-@EnableMongoAuditing // Вмикає механізм аудиту
+@EnableMongoAuditing
 public class AuditingConfig {
 
   @Bean
@@ -28,7 +28,7 @@ public class AuditingConfig {
       if (authentication == null || !authentication.isAuthenticated()) {
         return Optional.empty();
       }
-      return Optional.of(authentication.getName()); // Повертає ім'я поточного юзера
+      return Optional.of(authentication.getName());
     };
   }
 }
