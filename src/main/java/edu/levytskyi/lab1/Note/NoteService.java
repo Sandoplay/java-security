@@ -9,10 +9,10 @@ package edu.levytskyi.lab1.Note;
 */
 
 import jakarta.annotation.PostConstruct;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +22,39 @@ public class NoteService {
 
   private final NoteRepository repository;
 
-  private List<Note> notes = new ArrayList<>();
+
+  private final List<Note> notes = new ArrayList<>();
 
   @PostConstruct
   void init() {
-    notes.add(new Note("1", "Перша нотатка", "Це зміст першої нотатки.", LocalDateTime.of(2025, 9, 30, 9, 15)));
-    notes.add(new Note("2", "Сходити в магазин", "Купити хліб, молоко, яйця.", LocalDateTime.of(2025, 9, 30, 14, 30)));
-    notes.add(new Note("3", "План на завтра", "Зробити лабораторну з безпеки.", LocalDateTime.of(2025, 9, 30, 21, 0)));
+
+    repository.deleteAll();
+
+
+    notes.add(Note.builder()
+        .id("1")
+        .title("Перша нотатка")
+        .content("Це зміст першої нотатки.")
+        .createdDate(LocalDateTime.now())
+        .createdBy("system")
+        .build());
+
+    notes.add(Note.builder()
+        .id("2")
+        .title("Сходити в магазин")
+        .content("Купити хліб, молоко, яйця.")
+        .createdDate(LocalDateTime.now().plusHours(1))
+        .createdBy("admin")
+        .build());
+
+    notes.add(Note.builder()
+        .id("3")
+        .title("План на завтра")
+        .content("Зробити лабораторну з безпеки.")
+        .createdDate(LocalDateTime.now().plusHours(5))
+        .createdBy("user")
+        .build());
+
     repository.saveAll(notes);
   }
 
@@ -45,10 +71,20 @@ public class NoteService {
   }
 
   public Note create(Note note) {
+    // При створенні Spring Security + Auditing автоматично заповнять createdBy/createdDate
     return repository.save(note);
   }
 
   public Note update(Note note) {
-    return repository.save(note);
+
+    return repository.findById(note.getId())
+        .map(existingNote -> {
+
+          existingNote.setTitle(note.getTitle());
+          existingNote.setContent(note.getContent());
+
+          return repository.save(existingNote);
+        })
+        .orElse(null);
   }
 }

@@ -1,0 +1,61 @@
+@host = http://localhost:8080/api/v1/notes
+
+### 1. GET Public Notes (Публічний доступ - без авторизації)
+# Очікується: 200 OK
+GET {{host}}
+
+### 2. GET Hello Unknown (Публічний доступ)
+# Очікується: 200 OK
+GET {{host}}/helloUnknown
+
+### 3. GET Hello User as USER (Доступ дозволено ролі USER)
+# Очікується: 200 OK
+GET {{host}}/helloUser
+Authorization: Basic user user
+
+### 4. GET Hello Admin as USER (Спроба доступу до адмін-ресурсу звичайним юзером)
+# Очікується: 403 Forbidden
+GET {{host}}/helloAdmin
+Authorization: Basic user user
+
+### 5. GET Hello Admin as ADMIN (Доступ дозволено ролі ADMIN)
+# Очікується: 200 OK
+GET {{host}}/helloAdmin
+Authorization: Basic admin admin
+
+### 6. POST Create Note as ADMIN (Створення нотатки адміном)
+# Очікується: 200 OK
+POST {{host}}
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "title": "Admin Note",
+  "content": "Secure content created by admin"
+}
+
+### 7. POST Create Note as USER (Спроба створення нотатки юзером)
+# Очікується: 403 Forbidden
+POST {{host}}
+Authorization: Basic user user
+Content-Type: application/json
+
+{
+  "title": "User Note",
+  "content": "I should not be able to create this"
+}
+
+### 8. DELETE Note as SUPERADMIN (Роль SUPERADMIN не прописана явно в matchers, але має бути authenticated)
+# Якщо роль SUPERADMIN не має прав ADMIN, очікується 403 Forbidden для DELETE
+DELETE {{host}}/1
+Authorization: Basic superadmin superadmin
+
+### 9. GET Note by ID as SUPERADMIN (Автентифікований доступ до загального ресурсу)
+# Очікується: 200 OK (оскільки anyRequest().authenticated())
+GET {{host}}/2
+Authorization: Basic superadmin superadmin
+
+### 10. GET Hello User with Bad Credentials (Невірний пароль)
+# Очікується: 401 Unauthorized
+GET {{host}}/helloUser
+Authorization: Basic user wrongpassword
