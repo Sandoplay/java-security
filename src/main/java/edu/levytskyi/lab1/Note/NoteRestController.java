@@ -10,6 +10,7 @@ package edu.levytskyi.lab1.Note;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,11 +22,13 @@ public class NoteRestController {
 
   private final NoteService noteService;
 
+  // Публічний доступ
   @GetMapping
   public List<Note> getAll() {
     return noteService.getAll();
   }
 
+  // Доступно будь-якому аутентифікованому користувачу
   @GetMapping("/{id}")
   public ResponseEntity<Note> getById(@PathVariable String id) {
     Note note = noteService.getById(id);
@@ -36,16 +39,19 @@ public class NoteRestController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public Note create(@RequestBody Note note) {
     return noteService.create(note);
   }
 
   @PutMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public Note update(@RequestBody Note note) {
     return noteService.update(note);
   }
 
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
   public void deleteById(@PathVariable String id) {
     noteService.deleteById(id);
   }
@@ -56,15 +62,18 @@ public class NoteRestController {
   }
 
   @GetMapping("/helloUser")
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
   public String helloUser() {
     return "Hello, User!";
   }
 
   @GetMapping("/helloAdmin")
+  @PreAuthorize("hasRole('ADMIN')")
   public String helloAdmin() {
     return "Hello, Admin!";
   }
 
+  // Публічний доступ
   @GetMapping("/helloUnknown")
   public String helloUnknown() {
     return "Hello, Unknown!";

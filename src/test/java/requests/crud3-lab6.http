@@ -1,0 +1,67 @@
+@host = http://localhost:8080/api/v1/notes
+@user = user
+@admin = admin
+@superadmin = superadmin
+
+### 1/10. GET Public Notes (Публічний доступ - налаштовано через matcher)
+# Очікується: 200 OK (доступ дозволено всім)
+GET {{host}}
+
+### 2/10. GET Hello Unknown (Публічний доступ)
+# Очікується: 200 OK
+GET {{host}}/helloUnknown
+
+### 3/10. GET Hello User as USER (Доступ через @PreAuthorize hasAnyRole)
+# Очікується: 200 OK
+GET {{host}}/helloUser
+Authorization: Basic {{user}} {{user}}
+
+### 4/10. GET Hello Admin as USER (Спроба доступу до ресурсу ADMIN)
+# Очікується: 403 Forbidden (User не має ролі ADMIN)
+GET {{host}}/helloAdmin
+Authorization: Basic {{user}} {{user}}
+
+### 5/10. GET Hello Admin as ADMIN (Успішний доступ ADMIN)
+# Очікується: 200 OK
+GET {{host}}/helloAdmin
+Authorization: Basic {{admin}} {{admin}}
+
+### 6/10. POST Create Note as USER (Спроба створення запису звичайним юзером)
+# Захищено ("hasRole('ADMIN')")
+# Очікується: 403 Forbidden
+POST {{host}}
+Authorization: Basic {{user}} {{user}}
+Content-Type: application/json
+
+{
+  "title": "Hacker Note",
+  "content": "I try to hack system"
+}
+
+### 7/10. POST Create Note as ADMIN (Створення запису адміном)
+# Очікується: 200 OK
+POST {{host}}
+Authorization: Basic {{admin}} {{admin}}
+Content-Type: application/json
+
+{
+  "title": "Admin Secure Note",
+  "content": "Created via annotated controller"
+}
+
+### 8/10. DELETE Note as SUPERADMIN (Роль SUPERADMIN не вказана в анотації)
+# Контролер вимагає hasRole('ADMIN'). Superadmin має свою роль, тому доступу немає.
+# Очікується: 403 Forbidden
+DELETE {{host}}/1
+Authorization: Basic {{superadmin}} {{superadmin}}
+
+### 9/10. GET Note by ID as SUPERADMIN (Автентифікований доступ)
+# Метод getById не має специфічних анотацій, тому працює anyRequest().authenticated()
+# Очікується: 200 OK
+GET {{host}}/2
+Authorization: Basic {{superadmin}} {{superadmin}}
+
+### 10/10. GET Hello User with Bad Credentials (Невірна аутентифікація)
+# Очікується: 401 Unauthorized
+GET {{host}}/helloUser
+Authorization: Basic {{user}} wrongpassword
