@@ -33,16 +33,12 @@ public class NoteService {
         .id("1")
         .title("Перша нотатка")
         .content("Зміст 1")
-        .createdDate(LocalDateTime.now())
-        .createdBy("system")
         .build());
 
     notes.add(Note.builder()
         .id("2")
         .title("Адмінська нотатка")
         .content("Важлива інфа")
-        .createdDate(LocalDateTime.now())
-        .createdBy("admin")
         .build());
 
     repository.saveAll(notes);
@@ -60,35 +56,19 @@ public class NoteService {
     repository.deleteById(id);
   }
 
-  // --- РУЧНИЙ АУДИТ: CREATE ---
   public Note create(Note note) {
-    note.setCreatedDate(LocalDateTime.now());
-    note.setCreatedBy(getCurrentUsername()); // Записуємо поточного юзера
-    // При створенні можна також заповнити lastModified
-    note.setLastModifiedDate(LocalDateTime.now());
-    note.setLastModifiedBy(getCurrentUsername());
-
     return repository.save(note);
   }
 
-  // --- РУЧНИЙ АУДИТ: UPDATE ---
   public Note update(Note note) {
-    // 1. Шукаємо нотатку в базі за ID
     Note existingNote = repository.findById(note.getId()).orElse(null);
-
     if (existingNote != null) {
-      // 2. Оновлюємо тільки корисні дані
       existingNote.setTitle(note.getTitle());
       existingNote.setContent(note.getContent());
 
-      // 3. РУЧНИЙ АУДИТ: Фіксуємо, ХТО і КОЛИ змінив
-      existingNote.setLastModifiedDate(LocalDateTime.now());
-      existingNote.setLastModifiedBy(getCurrentUsername()); // Метод, який ми писали раніше
-
-      // 4. Зберігаємо оновлений об'єкт (createdBy залишиться старим!)
       return repository.save(existingNote);
     }
-    return null; // Або можна кинути помилку, якщо ID не знайдено
+    return null;
   }
 
   // Допоміжний метод для отримання логіна

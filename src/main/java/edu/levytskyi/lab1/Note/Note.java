@@ -8,29 +8,22 @@ package edu.levytskyi.lab1.Note;
  @since 30.09.2025 - 22.45
 */
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDateTime;
 
 @Document(collection = "notes")
 @Data
-@Builder
+@EqualsAndHashCode(callSuper = true) // Важливо для Lombok при наслідуванні
 @NoArgsConstructor
 @AllArgsConstructor
-public class Note {
+@Builder
+public class Note extends AuditMetaData { // <--- Додали extends
 
   @Id
   private String id;
   private String title;
   private String content;
 
-  // --- Ручний аудит ---
-  private LocalDateTime createdDate;
-  private String createdBy;
-  private LocalDateTime lastModifiedDate;
-  private String lastModifiedBy;
 }

@@ -1,0 +1,43 @@
+### SETUP: Get Admin Token first
+POST http://localhost:8080/auth/authenticate
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+> {%
+  client.global.set("adminToken", response.body.token);
+%}
+
+###
+
+### 1. POST Request (Audit Check: CreatedBy)
+# Створюємо нотатку. Поле createdBy має заповнитися автоматично значенням "admin".
+POST http://localhost:8080/api/v1/notes
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "title": "Audit Test Note",
+  "content": "Checking createdBy field from JWT"
+}
+
+> {%
+  client.global.set("noteId", response.body.id);
+%}
+
+###
+
+### 2. PUT Request (Audit Check: LastModifiedBy)
+# Оновлюємо ту саму нотатку. Поле lastModifiedBy має оновитися (і дата теж).
+PUT http://localhost:8080/api/v1/notes
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "id": "{{noteId}}",
+  "title": "Audit Test Note (UPDATED)",
+  "content": "Checking lastModifiedBy field from JWT"
+}
