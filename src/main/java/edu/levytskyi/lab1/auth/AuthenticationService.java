@@ -8,23 +8,39 @@ package edu.levytskyi.lab1.auth;
  @since 28.11.2025 - 18.32
 */
 
-import edu.levytskyi.lab1.DTO.AuthenticationRequest;
-import edu.levytskyi.lab1.DTO.AuthenticationResponse;
+import edu.levytskyi.lab1.security.JwtService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticationService {
 
+  private final AuthenticationManager authenticationManager;
+  private final JwtService jwtService;
+  private final UserDetailsService userDetailsService;
+
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
-    // Проста перевірка (імітація перевірки в InMemoryUserDetailsManager)
-    if ("admin".equals(request.getLogin()) && "admin".equals(request.getPassword())) {
-      // Це реальний JWT токен (Header.Payload.Signature)
-      // Payload: {"sub": "admin", "role": "ADMIN", "iat": 1516239022}
-      String mockJwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
-          "eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTUxNjIzOTAyMn0." +
-          "XbPfbC8Gq_8j1_7W4h6-5zJgXqQ_qXQ4k8Kk_K8qXqQ";
-      return new AuthenticationResponse(mockJwtToken);
-    }
-    throw new RuntimeException("Invalid credentials");
+    // 1. Перевірка логіну/паролю (якщо невірно - викине помилку)
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(
+            request.getUsername(),
+            request.getPassword()
+        )
+    );
+
+    // 2. Завантаження даних користувача (з BeansConfiguration)
+    UserDetails user = userDetailsService.loadUserByUsername(request.getUsername());
+
+    // 3. Генерація токена
+    String jwtToken = jwtService.generateToken(user);
+
+    return AuthenticationResponse.builder()
+        .token(jwtToken)
+        .build();
   }
 }

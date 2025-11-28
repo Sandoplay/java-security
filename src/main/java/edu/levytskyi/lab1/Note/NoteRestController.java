@@ -39,19 +39,19 @@ public class NoteRestController {
   }
 
   @PostMapping
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAuthority('ADMIN')") // БУЛО: hasRole('ADMIN')
   public Note create(@RequestBody Note note) {
     return noteService.create(note);
   }
 
   @PutMapping
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAuthority('ADMIN')") // БУЛО: hasRole('ADMIN')
   public Note update(@RequestBody Note note) {
     return noteService.update(note);
   }
 
   @DeleteMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAuthority('ADMIN')") // БУЛО: hasRole('ADMIN')
   public void deleteById(@PathVariable String id) {
     noteService.deleteById(id);
   }
@@ -62,13 +62,13 @@ public class NoteRestController {
   }
 
   @GetMapping("/helloUser")
-  @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+  @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')") // БУЛО: hasAnyRole
   public String helloUser() {
     return "Hello, User!";
   }
 
   @GetMapping("/helloAdmin")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAuthority('ADMIN')") // БУЛО: hasRole
   public String helloAdmin() {
     return "Hello, Admin!";
   }

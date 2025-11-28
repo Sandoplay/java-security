@@ -1,0 +1,76 @@
+### SCENARIO 1: Generate USER Token (Успішний логін User)
+# [Скріншот 1: Відповідь 200 OK з токеном]
+POST http://localhost:8080/auth/authenticate
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "user"
+}
+
+> {%
+  client.global.set("userToken", response.body.token);
+  client.log("User Token: " + response.body.token);
+%}
+
+### SCENARIO 2: Generate ADMIN Token (Успішний логін Admin)
+# [Скріншот 2: Відповідь 200 OK з токеном]
+POST http://localhost:8080/auth/authenticate
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+> {%
+  client.global.set("adminToken", response.body.token);
+  client.log("Admin Token: " + response.body.token);
+%}
+
+### SCENARIO 3: User -> User Route (Доступ дозволено)
+# [Скріншот 3: Відповідь 200 OK "Hello, User!"]
+GET http://localhost:8080/api/v1/notes/helloUser
+Authorization: Bearer {{userToken}}
+
+### SCENARIO 4: User -> Admin Route (Доступ заборонено)
+# [Скріншот 4: Відповідь 403 Forbidden]
+GET http://localhost:8080/api/v1/notes/helloAdmin
+Authorization: Bearer {{userToken}}
+
+### SCENARIO 5: Admin -> Admin Route (Доступ дозволено)
+# [Скріншот 5: Відповідь 200 OK "Hello, Admin!"]
+GET http://localhost:8080/api/v1/notes/helloAdmin
+Authorization: Bearer {{adminToken}}
+
+### SCENARIO 6: Admin -> User Route (Доступ дозволено - ієрархія або спільний доступ)
+# [Скріншот 6: Відповідь 200 OK]
+GET http://localhost:8080/api/v1/notes/helloUser
+Authorization: Bearer {{adminToken}}
+
+### SCENARIO 7: No Token (Без авторизації)
+# [Скріншот 7: Відповідь 403 Forbidden]
+GET http://localhost:8080/api/v1/notes/helloUser
+
+### SCENARIO 8: Get All (Public/Protected check)
+# [Скріншот 8: Відповідь 200 OK - це публічний роут у вашому конфігу]
+GET http://localhost:8080/api/v1/notes
+Authorization: Bearer {{userToken}}
+
+### SCENARIO 9: Invalid Token (Змінений підпис)
+# [Скріншот 9: Відповідь 403 Forbidden]
+# Ми беремо валідний токен, але дописуємо "FAKE" в кінці
+GET http://localhost:8080/api/v1/notes/helloAdmin
+Authorization: Bearer {{adminToken}}FAKE
+
+### SCENARIO 10: Debug Info (Опціонально - або спроба POST запиту)
+# Якщо викладач просить скрін з jwt.io - зробіть його там.
+# Якщо скрін з Postman - зробіть спробу створення нотатки адміном.
+POST http://localhost:8080/api/v1/notes
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "title": "JWT Test Note",
+  "content": "Created with Admin Authority"
+}

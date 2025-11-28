@@ -8,14 +8,15 @@ package edu.levytskyi.lab1.auth;
  @since 28.11.2025 - 18.32
 */
 
-import edu.levytskyi.lab1.DTO.AuthenticationRequest;
-import edu.levytskyi.lab1.DTO.AuthenticationResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import edu.levytskyi.lab1.auth.AuthenticationRequest;
+import edu.levytskyi.lab1.auth.AuthenticationResponse;
 
 @RestController
 @RequestMapping("/auth")
