@@ -46,6 +46,8 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/auth/**").permitAll() // Додати цей рядок
+            .requestMatchers(HttpMethod.GET, "/api/v1/notes").permitAll()
             // Публічний доступ
             .requestMatchers(HttpMethod.GET, "/api/v1/notes").permitAll()
             .requestMatchers("/api/v1/notes/helloUnknown").permitAll()

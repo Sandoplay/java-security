@@ -1,0 +1,10 @@
+@host = http://localhost:8080/auth/authenticate
+
+
+POST http://localhost:8080/auth/authenticate
+Content-Type: application/json
+
+{
+  "login": "admin",
+  "password": "admin"
+}
